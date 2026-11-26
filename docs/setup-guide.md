@@ -76,3 +76,45 @@ Or launch via the client role selector:
 ```bash
 java -jar client/target/client-1.0-SNAPSHOT.jar --student
 ```
+
+### 4. UDP Multicast Classroom Announcements Demo (`server` & `client` modules)
+
+The UDP multicast demonstration broadcasts announcements one-to-many on group **`239.255.42.99`**, **UDP port `5002`**, **TTL `1`**. Ensure `gson` is on the classpath when running standalone classes.
+
+#### Start two or more multicast receivers
+Windows PowerShell (use `;` as classpath separator):
+```powershell
+$gson = "$env:USERPROFILE\.m2\repository\com\google\code\gson\gson\2.11.0\gson-2.11.0.jar"
+java -cp "client\target\client-1.0-SNAPSHOT.jar;common\target\common-1.0-SNAPSHOT.jar;$gson" com.classpulse.client.network.MulticastAnnouncementReceiverMain 239.255.42.99 5002
+```
+macOS / Linux (use `:` as classpath separator):
+```bash
+GSON="$HOME/.m2/repository/com/google/code/gson/gson/2.11.0/gson-2.11.0.jar"
+java -cp "client/target/client-1.0-SNAPSHOT.jar:common/target/common-1.0-SNAPSHOT.jar:$GSON" com.classpulse.client.network.MulticastAnnouncementReceiverMain 239.255.42.99 5002
+```
+*(Optional 3rd argument specifies a network interface name, e.g. `eth0` or `wlan0`.)*
+
+#### Start the multicast sender
+Windows PowerShell:
+```powershell
+$gson = "$env:USERPROFILE\.m2\repository\com\google\code\gson\gson\2.11.0\gson-2.11.0.jar"
+java -cp "server\target\server-1.0-SNAPSHOT.jar;common\target\common-1.0-SNAPSHOT.jar;$gson" com.classpulse.server.multicast.MulticastAnnouncementSenderMain 239.255.42.99 5002 1
+```
+macOS / Linux:
+```bash
+GSON="$HOME/.m2/repository/com/google/code/gson/gson/2.11.0/gson-2.11.0.jar"
+java -cp "server/target/server-1.0-SNAPSHOT.jar:common/target/common-1.0-SNAPSHOT.jar:$GSON" com.classpulse.server.multicast.MulticastAnnouncementSenderMain 239.255.42.99 5002 1
+```
+*(Optional 4th argument specifies the outgoing network interface name.)*
+
+#### Manual test procedure (2+ receivers)
+1. Open two separate terminals and start `MulticastAnnouncementReceiverMain` in each. Both bind with `SO_REUSEADDR` and join `239.255.42.99:5002`.
+2. Open a third terminal and start `MulticastAnnouncementSenderMain`.
+3. Enter a classroom code (e.g. `CS101`), sender name, and type an announcement line.
+4. Confirm that **both** receiver terminals immediately display the announcement.
+5. Type `exit` in the sender and press Enter in each receiver to verify clean shutdown and group leave.
+
+#### Network, interface, and firewall caveats
+- **Interface selection:** By default, sender and receiver automatically pick an active IPv4 multicast-capable interface (preferring non-loopback, falling back to loopback). On multi-homed hosts (VPN/Docker/virtual adapters), pass the explicit interface name if packets go out the wrong adapter.
+- **Campus / guest Wi-Fi:** Many campus or public Wi-Fi networks block or isolate IP multicast traffic (client isolation / IGMP filtering). If multicast fails across machines on campus Wi-Fi, test on the same host (loopback) or on a wired lab subnet / private hotspot.
+- **Firewall:** Allow inbound/outbound **UDP port `5002`** and multicast traffic (`239.255.42.99`) in Windows Defender Firewall or `ufw`.
