@@ -1,14 +1,35 @@
 package com.classpulse.server;
 
+import com.classpulse.server.nio.NioServer;
+
+import java.io.IOException;
+
 /**
- * Server entry point placeholder.
- *
- * Member 1 should replace this with startup/shutdown wiring for the
- * Java NIO server after the team agrees on the server API.
+ * Entry point for the ClassPulse central Java NIO server.
  */
 public class MainServer {
+
     public static void main(String[] args) {
-        System.out.println("ClassPulse server starter");
-        System.out.println("TODO: initialise and start the NIO server.");
+        int port = NioServer.DEFAULT_PORT;
+        if (args.length > 0) {
+            try {
+                port = Integer.parseInt(args[0]);
+            } catch (NumberFormatException e) {
+                System.err.println("Invalid port '" + args[0] + "', using default port " + NioServer.DEFAULT_PORT);
+            }
+        }
+
+        NioServer server = new NioServer(port);
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("Shutting down ClassPulse NIO Server...");
+            server.stop();
+        }, "server-shutdown-hook"));
+
+        try {
+            server.start();
+        } catch (IOException e) {
+            System.err.println("Failed to start ClassPulse NIO Server on port " + port + ": " + e.getMessage());
+            System.exit(1);
+        }
     }
 }
