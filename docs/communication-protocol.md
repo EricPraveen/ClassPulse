@@ -2,7 +2,7 @@
 
 **Status:** Accepted
 **Applies to:** All ClassPulse Modules (`common`, `server`, `client`)
-**Shared Reference Implementation:** `com.classpulse.common.protocol.Message` & `com.classpulse.common.protocol.ProtocolFramer`
+**Shared Reference Implementation:** `com.classpulse.common.protocol.Message`, `MessageEncoder`, `MessageDecoder`, `FrameEncoder`, `FrameDecoder`, & `ProtocolFramer`
 
 ---
 
@@ -71,6 +71,19 @@ To guarantee reliable message boundaries, ClassPulse uses **4-byte big-endian le
 - Frames with length `< 0` or `> 65536` are invalid and must be rejected immediately to protect against buffer overflow or denial-of-service attacks.
 
 ### Frame Processing Logic
+
+#### Shared Encoder and Decoder Classes
+- `MessageEncoder.encode(Message)` serializes a `Message` envelope into a UTF-8 JSON string.
+- `MessageDecoder.decode(String)` deserializes a JSON string back into a validated `Message`.
+- `FrameEncoder.encode(Message)` / `FrameEncoder.encode(String)` converts JSON to UTF-8 bytes, prepends the 4-byte big-endian byte length, and returns a flipped `ByteBuffer`.
+- `FrameDecoder.decode(ByteBuffer)` accumulates incoming `ByteBuffer` chunks, waits until the 4-byte header and full payload are available, extracts all complete `Message` objects (including multiple frames in one buffer), preserves trailing incomplete bytes for the next read, and rejects invalid (`<= 0`) or oversized (`> 65,536` bytes) frame lengths.
+
+#### Example Framed Message
+For the JSON payload `{"type":"HEARTBEAT","requestId":"hb-1","payload":{}}` (49 UTF-8 bytes):
+```text
+[ 0x00 0x00 0x00 0x31 ] [ {"type":"HEARTBEAT","requestId":"hb-1","payload":{}} ]
+|<-- 4-byte length -->| |<------------------ 49 UTF-8 bytes ------------------->|
+```
 
 #### For Non-Blocking NIO (Member 1 - Server):
 1. In the `ByteBuffer` read loop:
