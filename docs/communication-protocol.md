@@ -366,6 +366,19 @@ Sent by client prior to closing socket connection.
 }
 ```
 
+### 5.4 UDP Multicast Operations
+
+#### `ANNOUNCEMENT` (UDP Multicast — Server → Receivers)
+Broadcast over UDP multicast group `239.255.42.99`, port `5002`, TTL `1` as a **raw UTF-8 JSON datagram** (no 4-byte TCP length prefix; max `2048` bytes).
+
+```json
+{
+  "type": "ANNOUNCEMENT",
+  "requestId": "ann-1",
+  "payload": {
+    "message": "Poll #2 is now open!",
+    "classroomCode": "CS101",
+    "sender": "Prof. Ada",
 ### 5.4 UDP Operations
 
 #### `HEARTBEAT` (UDP Datagram — Client → Server)
@@ -383,6 +396,11 @@ Sent periodically over UDP port `5001` (independent of TCP port `5000`) as a **r
   }
 }
 ```
+- `message` (String, required): Non-blank announcement text.
+- `classroomCode` (String, optional): Target classroom code.
+- `sender` (String, optional): Display name of the sender.
+- `timestamp` (Long, optional): Epoch timestamp in milliseconds.
+- **Multicast configuration:** Group `239.255.42.99`, UDP port `5002`, TTL `1` (local subnet only). Malformed or non-`ANNOUNCEMENT` datagrams are ignored safely.
 - `clientId` (String, required): Unique client or session identifier.
 - `role` (String, optional): Client role (`STUDENT` or `LECTURER`).
 - `classroomCode` (String, optional): Classroom code the client is participating in.
