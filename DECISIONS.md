@@ -30,9 +30,15 @@ Record decisions that affect multiple members. Add newest decisions at the top.
 - **Reason:** The assessment focus is network programming, not UI development.
 - **Impact:** Avoid spending assignment time on a GUI unless required.
 
+## D-005 – Shared TCP communication protocol and framing
+
+- **Status:** Accepted
+- **Decision:** Use JSON application messages (`type`, `requestId`, `payload`) framed with a 4-byte big-endian integer length prefix (max 64 KB).
+- **Reason:** Provides a clean, standardized, language-idiomatic protocol for all five group members to work independently without communication conflicts. Solves TCP byte-stream partial reads/writes and oversized payload vulnerabilities.
+- **Impact:** All TCP networking implementations (`server`, `client`, NIO, TLS) must use `Message` and `ProtocolFramer` from the `common` module.
+
 ## Pending decisions
 
-- TCP message framing and encoding.
 - TCP and UDP port numbers.
 - Multicast group address and port.
 - TLS certificate/trust-store approach for the demo.
