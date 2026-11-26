@@ -62,9 +62,49 @@ public class PollMessageHandler implements MessageHandler {
             return handleSubmitAnswer(message, requestId);
         } else if (message.getType() == MessageType.POLL_RESULTS) {
             return handlePollResults(message, requestId);
+        } else if (message.getType() == MessageType.GET_POLL) {
+            return handleGetPoll(message, requestId);
         }
 
         return null;
+    }
+
+    private Message handleGetPoll(Message message, String requestId) {
+        String pollId = message.getPayloadString("pollId");
+        String classroomCode = message.getPayloadString("classroomCode");
+
+        if (pollId != null && !pollId.trim().isEmpty()) {
+            return pollService.findPoll(pollId.trim())
+                    .map(p -> createPollDetailsResponse(p, requestId))
+                    .orElseGet(() -> Message.error(requestId, "INVALID_POLL", "Poll '" + pollId.trim() + "' does not exist"));
+        }
+
+        if (classroomCode != null && !classroomCode.trim().isEmpty()) {
+            String normalizedCode = classroomCode.trim().toUpperCase();
+            if (pollService.getClassroomManager() != null &&
+                    !pollService.getClassroomManager().hasClassroom(normalizedCode)) {
+                return Message.error(requestId, "INVALID_CLASSROOM", "Classroom '" + normalizedCode + "' does not exist");
+            }
+
+            List<Poll> polls = pollService.getPollsForClassroom(normalizedCode);
+            if (polls.isEmpty()) {
+                return Message.error(requestId, "NO_ACTIVE_POLL", "No active poll found in classroom '" + normalizedCode + "'");
+            }
+
+            Poll latest = polls.get(polls.size() - 1);
+            return createPollDetailsResponse(latest, requestId);
+        }
+
+        return Message.error(requestId, "INVALID_PAYLOAD", "Either 'classroomCode' or 'pollId' must be provided");
+    }
+
+    private Message createPollDetailsResponse(Poll poll, String requestId) {
+        Message response = new Message(MessageType.POLL_CREATED, requestId);
+        response.putPayload("pollId", poll.getId());
+        response.putPayload("classroomCode", poll.getClassroomCode());
+        response.putPayload("question", poll.getQuestion());
+        response.putPayload("options", poll.getOptions());
+        return response;
     }
 
     private Message handleCreatePoll(Message message, String requestId) {
