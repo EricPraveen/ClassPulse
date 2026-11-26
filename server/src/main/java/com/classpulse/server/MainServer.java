@@ -1,5 +1,7 @@
 package com.classpulse.server;
 
+import com.classpulse.server.classroom.ClassroomManager;
+import com.classpulse.server.classroom.ClassroomMessageHandler;
 import com.classpulse.server.nio.NioServer;
 
 import java.io.IOException;
@@ -19,7 +21,9 @@ public class MainServer {
             }
         }
 
-        NioServer server = new NioServer(port);
+        ClassroomManager classroomManager = new ClassroomManager();
+        ClassroomMessageHandler messageHandler = new ClassroomMessageHandler(classroomManager);
+        NioServer server = new NioServer(port, messageHandler);
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             System.out.println("Shutting down ClassPulse NIO Server...");
             server.stop();
