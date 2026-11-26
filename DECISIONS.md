@@ -8,6 +8,12 @@ Record decisions that affect multiple members. Add newest decisions at the top.
 - **Decision:** Use administratively scoped IPv4 multicast group `239.255.42.99`, UDP port `5002`, TTL `1` (local subnet only), automatic IPv4 multicast-capable `NetworkInterface` selection (preferring non-loopback, falling back to loopback, with optional explicit interface override), and raw UTF-8 JSON `Message` envelopes with `MessageType.ANNOUNCEMENT` (max `2048` bytes).
 - **Reason:** RFC 2365 `239.255.0.0/16` addresses are reserved for local/organization-scoped multicast, and TTL `1` prevents announcements from leaving the local subnet. Port `5002` keeps multicast independent of TCP (`5000`) and UDP heartbeat (`5001`).
 - **Impact:** Implemented in `com.classpulse.server.multicast` and `com.classpulse.client.network.MulticastAnnouncementReceiver`.
+## D-006 – UDP heartbeat configuration and datagram format
+
+- **Status:** Accepted
+- **Decision:** Use UDP port `5001`, raw UTF-8 JSON `Message` envelopes with `MessageType.HEARTBEAT` (without the 4-byte TCP length prefix), a default client heartbeat interval of `5` seconds (`5000 ms`), a server offline timeout of `15` seconds (`15000 ms`), and a maximum datagram size of `2048` bytes.
+- **Reason:** UDP preserves datagram boundaries per packet, so length-prefix framing is unnecessary. Keeping UDP heartbeat separate from TCP port `5000` avoids interfering with the NIO classroom/polling workflow while demonstrating independent UDP presence tracking.
+- **Impact:** Implemented in `com.classpulse.server.udp` and `com.classpulse.client.network.UdpHeartbeatClient`.
 
 ## D-001 – Java and build system
 
@@ -47,6 +53,7 @@ Record decisions that affect multiple members. Add newest decisions at the top.
 ## Pending decisions
 
 - TCP and UDP port numbers.
+- Multicast group address and port.
 - TLS certificate/trust-store approach for the demo.
 - Branching and pull request workflow.
 
