@@ -16,7 +16,7 @@ Only mark a task `[x] DONE` after its acceptance check has passed. Add new tasks
 ## P1 – Core application
 
 - [ ] P1-01 Implement NIO server accept/read/write lifecycle.
-- [ ] P1-02 Implement client connection and message framing.
+- [x] P1-02 Implement client connection and message framing.
 - [ ] P1-03 Implement lecturer classroom creation.
 - [ ] P1-04 Implement student classroom joining.
 - [ ] P1-05 Implement poll creation and validation.
