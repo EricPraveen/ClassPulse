@@ -22,6 +22,7 @@ Only mark a task `[x] DONE` after its acceptance check has passed. Add new tasks
 - [x] P1-05 Implement poll creation and validation.
 - [x] P1-06 Implement answer submission and result calculation.
 - [ ] P1-07 Demonstrate at least two student clients connected concurrently.
+- [x] P1-08 Implement student console workflow (Issue #11).
 
 ## P2 – Networking concepts
 

@@ -183,6 +183,71 @@ class PollMessageHandlerTest {
     }
 
     @Test
+    @DisplayName("handleRequest with GET_POLL by classroomCode returns latest active poll")
+    void testHandleGetPollByClassroomSuccess() {
+        Poll poll = pollService.createPoll(classroom.getCode(), "Latest question?", Arrays.asList("Yes", "No"));
+
+        Message req = new Message(MessageType.GET_POLL, "req-get-1");
+        req.putPayload("classroomCode", classroom.getCode());
+
+        Message resp = handler.handleRequest(req);
+        assertNotNull(resp);
+        assertEquals(MessageType.POLL_CREATED, resp.getType());
+        assertEquals(poll.getId(), resp.getPayloadString("pollId"));
+        assertEquals("Latest question?", resp.getPayloadString("question"));
+        assertEquals(2, resp.getPayloadList("options").size());
+    }
+
+    @Test
+    @DisplayName("handleRequest with GET_POLL by pollId returns specific poll")
+    void testHandleGetPollByPollIdSuccess() {
+        Poll poll = pollService.createPoll(classroom.getCode(), "Specific question?", Arrays.asList("Alpha", "Beta"));
+
+        Message req = new Message(MessageType.GET_POLL, "req-get-2");
+        req.putPayload("pollId", poll.getId());
+
+        Message resp = handler.handleRequest(req);
+        assertNotNull(resp);
+        assertEquals(MessageType.POLL_CREATED, resp.getType());
+        assertEquals(poll.getId(), resp.getPayloadString("pollId"));
+    }
+
+    @Test
+    @DisplayName("handleRequest with GET_POLL returns NO_ACTIVE_POLL when room has no polls")
+    void testHandleGetPollNoActivePoll() {
+        Message req = new Message(MessageType.GET_POLL, "req-get-3");
+        req.putPayload("classroomCode", classroom.getCode());
+
+        Message resp = handler.handleRequest(req);
+        assertNotNull(resp);
+        assertEquals(MessageType.ERROR, resp.getType());
+        assertEquals("NO_ACTIVE_POLL", resp.getPayloadString("code"));
+    }
+
+    @Test
+    @DisplayName("handleRequest with GET_POLL returns INVALID_CLASSROOM for unknown room")
+    void testHandleGetPollInvalidClassroom() {
+        Message req = new Message(MessageType.GET_POLL, "req-get-4");
+        req.putPayload("classroomCode", "NON_EXISTENT");
+
+        Message resp = handler.handleRequest(req);
+        assertNotNull(resp);
+        assertEquals(MessageType.ERROR, resp.getType());
+        assertEquals("INVALID_CLASSROOM", resp.getPayloadString("code"));
+    }
+
+    @Test
+    @DisplayName("handleRequest with GET_POLL returns INVALID_PAYLOAD when no parameters provided")
+    void testHandleGetPollMissingPayload() {
+        Message req = new Message(MessageType.GET_POLL, "req-get-5");
+
+        Message resp = handler.handleRequest(req);
+        assertNotNull(resp);
+        assertEquals(MessageType.ERROR, resp.getType());
+        assertEquals("INVALID_PAYLOAD", resp.getPayloadString("code"));
+    }
+
+    @Test
     @DisplayName("handleRequest returns null for unhandled message type")
     void testHandleRequestUnhandledType() {
         Message unhandled = new Message(MessageType.DISCONNECT, "req-disc");

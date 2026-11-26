@@ -2,13 +2,16 @@ package com.classpulse.client;
 
 import com.classpulse.client.lecturer.LecturerConsoleApp;
 import com.classpulse.client.lecturer.LecturerMain;
+import com.classpulse.client.student.StudentConsoleApp;
+import com.classpulse.client.student.StudentMain;
 
 import java.util.Scanner;
 
 /**
  * Main client entry point.
  * <p>
- * Allows launching the Lecturer Console or Student Console (when implemented).
+ * Provides interactive role selection for launching either Lecturer Console
+ * or Student Console.
  */
 public class Main {
 
@@ -26,10 +29,13 @@ public class Main {
             }
         }
 
-        // Direct flag check: --lecturer
+        // Direct flag check: --lecturer or --student
         for (String arg : args) {
             if ("--lecturer".equalsIgnoreCase(arg) || "-l".equalsIgnoreCase(arg)) {
                 new LecturerConsoleApp(host, port).run();
+                return;
+            } else if ("--student".equalsIgnoreCase(arg) || "-s".equalsIgnoreCase(arg)) {
+                new StudentConsoleApp(host, port).run();
                 return;
             }
         }
@@ -38,7 +44,7 @@ public class Main {
         System.out.println("            Welcome to ClassPulse Client          ");
         System.out.println("==================================================");
         System.out.println("  1. Lecturer Console");
-        System.out.println("  2. Student Console (Issue #11 - In progress)");
+        System.out.println("  2. Student Console");
         System.out.println("  3. Exit");
         System.out.println("--------------------------------------------------");
         System.out.print("Select client mode (1-3): ");
@@ -49,7 +55,7 @@ public class Main {
             if ("1".equals(choice)) {
                 new LecturerConsoleApp(host, port).run();
             } else if ("2".equals(choice)) {
-                System.out.println("Student console is not yet implemented (scheduled for Issue #11).");
+                new StudentConsoleApp(host, port).run();
             } else {
                 System.out.println("Exiting ClassPulse client.");
             }

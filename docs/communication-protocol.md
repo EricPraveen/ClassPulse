@@ -111,6 +111,7 @@ For the JSON payload `{"type":"HEARTBEAT","requestId":"hb-1","payload":{}}` (49 
 | `CLASSROOM_JOINED` | Server → Client | Classroom | Server confirms student successfully joined. |
 | `CREATE_POLL` | Client → Server | Polling | Lecturer publishes a new multiple-choice poll. |
 | `POLL_CREATED` | Server → Client | Polling | Server confirms poll is active in classroom. |
+| `GET_POLL` | Client → Server | Polling | Student/client requests details of active poll by room or poll ID. |
 | `SUBMIT_ANSWER` | Client → Server | Polling | Student submits selected option to active poll. |
 | `ANSWER_SUBMITTED` | Server → Client | Polling | Server acknowledges answer submission. |
 | `POLL_RESULTS` | Server → Clients | Polling | Broadcast / response with aggregated poll results. |
@@ -235,6 +236,23 @@ Server response confirming poll creation.
 - `classroomCode` (String, required): Associated classroom.
 - `question` (String, required): Confirmed question.
 - `options` (Array of Strings, required): Confirmed options list.
+
+#### `GET_POLL` (Request)
+Sent by a student or client to retrieve details of an active poll for a classroom or by poll ID.
+```json
+{
+  "type": "GET_POLL",
+  "requestId": "req-004",
+  "payload": {
+    "classroomCode": "CS101"
+  }
+}
+```
+- `classroomCode` (String, optional): Classroom code to query the active poll for.
+- `pollId` (String, optional): Specific poll ID to query.
+*Note: At least one of `classroomCode` or `pollId` must be provided.*
+
+Server returns `POLL_CREATED` containing `pollId`, `classroomCode`, `question`, and `options` on success, or `ERROR` (`NO_ACTIVE_POLL`, `INVALID_CLASSROOM`, `INVALID_POLL`, `INVALID_PAYLOAD`).
 
 #### `SUBMIT_ANSWER` (Request)
 Sent by a student to submit an answer.

@@ -66,3 +66,13 @@ Or launch via the client role selector:
 ```bash
 java -jar client/target/client-1.0-SNAPSHOT.jar --lecturer
 ```
+
+### 3. Student Console (`client` module)
+Run the student interactive console to join classrooms, view polls, and submit answers:
+```bash
+java -cp client/target/client-1.0-SNAPSHOT.jar:common/target/common-1.0-SNAPSHOT.jar com.classpulse.client.student.StudentMain [host] [port]
+```
+Or launch via the client role selector:
+```bash
+java -jar client/target/client-1.0-SNAPSHOT.jar --student
+```

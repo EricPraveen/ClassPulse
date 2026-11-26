@@ -14,6 +14,7 @@ public enum MessageType {
     // Polling operations
     CREATE_POLL,
     POLL_CREATED,
+    GET_POLL,
     SUBMIT_ANSWER,
     ANSWER_SUBMITTED,
     POLL_RESULTS,
