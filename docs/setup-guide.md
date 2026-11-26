@@ -51,4 +51,18 @@ mvn clean install
 
 ## Run configuration
 
-The two main classes currently print starter messages only. Add run configurations after the NIO server and client have been implemented.
+### 1. Central Server (`server` module)
+Run `MainServer` to start the central Java NIO server on port 5000:
+```bash
+java -cp server/target/server-1.0-SNAPSHOT.jar:common/target/common-1.0-SNAPSHOT.jar com.classpulse.server.MainServer [optional-port]
+```
+
+### 2. Lecturer Console (`client` module)
+Run the lecturer interactive console to create classrooms, publish polls, and view results:
+```bash
+java -cp client/target/client-1.0-SNAPSHOT.jar:common/target/common-1.0-SNAPSHOT.jar com.classpulse.client.lecturer.LecturerMain [host] [port]
+```
+Or launch via the client role selector:
+```bash
+java -jar client/target/client-1.0-SNAPSHOT.jar --lecturer
+```
