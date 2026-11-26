@@ -1,8 +1,13 @@
 package com.classpulse.server;
 
+import com.classpulse.common.protocol.Message;
 import com.classpulse.server.classroom.ClassroomManager;
 import com.classpulse.server.classroom.ClassroomMessageHandler;
+import com.classpulse.server.nio.MessageHandler;
 import com.classpulse.server.nio.NioServer;
+import com.classpulse.server.poll.AnswerService;
+import com.classpulse.server.poll.PollMessageHandler;
+import com.classpulse.server.poll.PollService;
 
 import java.io.IOException;
 
@@ -22,8 +27,23 @@ public class MainServer {
         }
 
         ClassroomManager classroomManager = new ClassroomManager();
-        ClassroomMessageHandler messageHandler = new ClassroomMessageHandler(classroomManager);
-        NioServer server = new NioServer(port, messageHandler);
+        ClassroomMessageHandler classroomHandler = new ClassroomMessageHandler(classroomManager);
+
+        PollService pollService = new PollService(classroomManager);
+        AnswerService answerService = new AnswerService(pollService);
+        PollMessageHandler pollHandler = new PollMessageHandler(pollService, answerService);
+
+        MessageHandler compositeHandler = (client, message) -> {
+            Message response = classroomHandler.handleRequest(message);
+            if (response == null) {
+                response = pollHandler.handleRequest(message);
+            }
+            if (response != null && !client.isClosed()) {
+                client.send(response);
+            }
+        };
+
+        NioServer server = new NioServer(port, compositeHandler);
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             System.out.println("Shutting down ClassPulse NIO Server...");
             server.stop();
