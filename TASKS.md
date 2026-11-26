@@ -19,8 +19,8 @@ Only mark a task `[x] DONE` after its acceptance check has passed. Add new tasks
 - [x] P1-02 Implement client connection and message framing.
 - [x] P1-03 Implement lecturer classroom creation.
 - [x] P1-04 Implement student classroom joining.
-- [ ] P1-05 Implement poll creation and validation.
-- [ ] P1-06 Implement answer submission and result calculation.
+- [x] P1-05 Implement poll creation and validation.
+- [x] P1-06 Implement answer submission and result calculation.
 - [ ] P1-07 Demonstrate at least two student clients connected concurrently.
 
 ## P2 – Networking concepts
