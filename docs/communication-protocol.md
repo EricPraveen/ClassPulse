@@ -366,6 +366,29 @@ Sent by client prior to closing socket connection.
 }
 ```
 
+### 5.4 UDP Operations
+
+#### `HEARTBEAT` (UDP Datagram — Client → Server)
+Sent periodically over UDP port `5001` (independent of TCP port `5000`) as a **raw UTF-8 JSON datagram** (no 4-byte TCP length prefix; max `2048` bytes).
+
+```json
+{
+  "type": "HEARTBEAT",
+  "requestId": "hb-1",
+  "payload": {
+    "clientId": "student-demo-1",
+    "role": "STUDENT",
+    "classroomCode": "CS101",
+    "timestamp": 1764200000000
+  }
+}
+```
+- `clientId` (String, required): Unique client or session identifier.
+- `role` (String, optional): Client role (`STUDENT` or `LECTURER`).
+- `classroomCode` (String, optional): Classroom code the client is participating in.
+- `timestamp` (Long, optional): Client epoch timestamp in milliseconds.
+- **Timing defaults:** Client sends every `5` seconds (`5000 ms`); server marks a client `ONLINE` when seen within `15` seconds (`15000 ms`) and `OFFLINE` thereafter. Malformed or non-`HEARTBEAT` datagrams are ignored safely.
+
 ---
 
 ## 6. Example Request–Response Exchanges

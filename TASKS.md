@@ -26,7 +26,7 @@ Only mark a task `[x] DONE` after its acceptance check has passed. Add new tasks
 
 ## P2 – Networking concepts
 
-- [ ] P2-01 Implement UDP heartbeat/status sender and receiver.
+- [x] P2-01 Implement UDP heartbeat/status sender and receiver.
 - [ ] P2-02 Implement multicast announcement sender and receiver.
 - [ ] P2-03 Implement worker-thread request processing.
 - [ ] P2-04 Protect shared poll response state from race conditions.
