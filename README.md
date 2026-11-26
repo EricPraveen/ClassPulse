@@ -1,5 +1,8 @@
 # ClassPulse
 
+[![CI](https://github.com/EricPraveen/ClassPulse/actions/workflows/ci.yml/badge.svg)](https://github.com/EricPraveen/ClassPulse/actions/workflows/ci.yml)
+[![Security](https://github.com/EricPraveen/ClassPulse/actions/workflows/security.yml/badge.svg)](https://github.com/EricPraveen/ClassPulse/actions/workflows/security.yml)
+
 **IN3111 – Network Programming | Group Assignment Starter**
 
 ClassPulse is a lightweight Java client–server classroom polling application. A lecturer creates a classroom and publishes a multiple-choice poll. Students join using a classroom code and submit answers. The server collects responses and calculates the results.
