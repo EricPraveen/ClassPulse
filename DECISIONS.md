@@ -2,6 +2,13 @@
 
 Record decisions that affect multiple members. Add newest decisions at the top.
 
+## D-006 – UDP heartbeat configuration and datagram format
+
+- **Status:** Accepted
+- **Decision:** Use UDP port `5001`, raw UTF-8 JSON `Message` envelopes with `MessageType.HEARTBEAT` (without the 4-byte TCP length prefix), a default client heartbeat interval of `5` seconds (`5000 ms`), a server offline timeout of `15` seconds (`15000 ms`), and a maximum datagram size of `2048` bytes.
+- **Reason:** UDP preserves datagram boundaries per packet, so length-prefix framing is unnecessary. Keeping UDP heartbeat separate from TCP port `5000` avoids interfering with the NIO classroom/polling workflow while demonstrating independent UDP presence tracking.
+- **Impact:** Implemented in `com.classpulse.server.udp` and `com.classpulse.client.network.UdpHeartbeatClient`.
+
 ## D-001 – Java and build system
 
 - **Status:** Accepted for starter
@@ -39,7 +46,6 @@ Record decisions that affect multiple members. Add newest decisions at the top.
 
 ## Pending decisions
 
-- TCP and UDP port numbers.
 - Multicast group address and port.
 - TLS certificate/trust-store approach for the demo.
 - Branching and pull request workflow.
