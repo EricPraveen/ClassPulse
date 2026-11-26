@@ -10,7 +10,7 @@ Only mark a task `[x] DONE` after its acceptance check has passed. Add new tasks
 - [x] P0-02 Add shared starter model and protocol classes.
 - [x] P0-03 Add project context, architecture, and team documentation.
 - [ ] P0-04 Confirm assignment requirements against the official brief.
-- [ ] P0-05 Agree on TCP framing, message payloads, and port numbers.
+- [x] P0-05 Agree on TCP framing, message payloads, and port numbers.
 - [ ] P0-06 Assign the five roles and record names in `docs/team-responsibilities.md`.
 
 ## P1 – Core application
