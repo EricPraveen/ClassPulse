@@ -35,8 +35,8 @@ This package provides the server-side, in-memory poll management, answer submiss
 - The server responds with `POLL_RESULTS` containing `pollId`, `question`, `totalResponses`, `options`, `optionResults`, and `optionPercentages`.
 
 ### 4. In-Memory Concurrency & Thread Safety
-- Polls are indexed in `ConcurrentHashMap<String, Poll>` and mapped to classroom codes using thread-safe lists.
-- Student responses per poll are keyed by student ID in `ConcurrentHashMap<String, Answer>`, ensuring lock-free thread safety during high-concurrency voting.
+- Polls are indexed in `ConcurrentHashMap<String, Poll>` and mapped to classroom codes using `CopyOnWriteArrayList`.
+- Per-poll responses are managed by `PollResponseState`, combining `ConcurrentHashMap<String, Answer>` (atomic duplicate prevention), `AtomicInteger` / `AtomicIntegerArray` vote counters, and a per-poll `ReentrantReadWriteLock` so concurrent submissions remain accurate and `calculateResults(pollId)` returns consistent snapshots.
 - All state resides in-memory; no external database or persistence engine is required.
 
 ---
