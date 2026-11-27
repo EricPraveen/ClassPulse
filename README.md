@@ -112,6 +112,7 @@ Agree on shared APIs and message formats before parallel implementation. All mem
 - [Communication protocol](docs/communication-protocol.md)
 - [Team responsibilities](docs/team-responsibilities.md)
 - [Setup guide](docs/setup-guide.md)
+- [TLS setup guide](docs/tls-setup.md)
 - [Roadmap](ROADMAP.md)
 - [Task tracker](TASKS.md)
 - [Decision log](DECISIONS.md)

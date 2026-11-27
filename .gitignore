@@ -29,5 +29,12 @@ logs/
 !.env.example
 *.jks
 *.keystore
+*.truststore
 *.p12
 *.pfx
+*.crt
+*.cer
+*.der
+*.pem
+*.key
+certs/

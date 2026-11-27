@@ -32,8 +32,8 @@ Only mark a task `[x] DONE` after its acceptance check has passed. Add new tasks
 - [ ] P2-02 Implement multicast announcement sender and receiver.
 - [x] P2-03 Implement worker-thread request processing.
 - [x] P2-04 Protect shared poll response state from race conditions.
-- [ ] P2-05 Configure JSSE/TLS on the agreed client-server connection.
-- [ ] P2-06 Verify a successful TLS handshake.
+- [x] P2-05 Configure JSSE/TLS on the agreed client-server connection.
+- [x] P2-06 Verify a successful TLS handshake.
 
 ## P3 – Integration and testing
 

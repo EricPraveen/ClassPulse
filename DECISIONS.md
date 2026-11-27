@@ -2,6 +2,13 @@
 
 Record decisions that affect multiple members. Add newest decisions at the top.
 
+## D-008 – JSSE/TLS secure communication configuration and certificate management
+
+- **Status:** Accepted
+- **Decision:** Use standard Java JSSE (`SSLContext`, `SSLServerSocket`, `SSLSocket`) on dedicated TCP port `5443` for secure communication, PKCS12 keystore format, TLS 1.3 and TLS 1.2 protocols, 2048-bit RSA self-signed development certificates with Subject Alternative Name (`SAN=dns:localhost,ip:127.0.0.1`), strict certificate path validation via `TrustManagerFactory`, and standard endpoint identification algorithm (`HTTPS`) for server hostname verification. Shared `Message` envelopes and length-prefixed framing from `common` are preserved without alteration over the decrypted TLS stream.
+- **Reason:** Keeping the TLS endpoint on port `5443` avoids destabilizing the non-blocking Java NIO selector loop on port `5000` while demonstrating full transport confidentiality, message integrity, and authenticated handshakes. PKCS12 is the Java 9+ standard keystore format, and RFC 2818 endpoint identification prevents hostname spoofing.
+- **Impact:** Implemented in `com.classpulse.server.security` (`TlsServer`, `TlsConfig`, `SslContextFactory`, `TlsServerMain`) and `com.classpulse.client.network` (`TlsClient`, `TlsClientMain`). Documentation provided in `docs/tls-setup.md`.
+
 ## D-007 – UDP multicast announcement configuration
 
 - **Status:** Accepted
@@ -52,9 +59,6 @@ Record decisions that affect multiple members. Add newest decisions at the top.
 
 ## Pending decisions
 
-- TCP and UDP port numbers.
-- Multicast group address and port.
-- TLS certificate/trust-store approach for the demo.
 - Branching and pull request workflow.
 
 When changing an accepted decision, add a new entry explaining why; do not silently rewrite project history.
