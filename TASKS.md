@@ -30,8 +30,8 @@ Only mark a task `[x] DONE` after its acceptance check has passed. Add new tasks
 - [x] P2-02 Implement multicast announcement sender and receiver.
 - [x] P2-01 Implement UDP heartbeat/status sender and receiver.
 - [ ] P2-02 Implement multicast announcement sender and receiver.
-- [ ] P2-03 Implement worker-thread request processing.
-- [ ] P2-04 Protect shared poll response state from race conditions.
+- [x] P2-03 Implement worker-thread request processing.
+- [x] P2-04 Protect shared poll response state from race conditions.
 - [ ] P2-05 Configure JSSE/TLS on the agreed client-server connection.
 - [ ] P2-06 Verify a successful TLS handshake.
 

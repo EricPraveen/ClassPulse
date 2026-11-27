@@ -176,9 +176,14 @@ public class PollMessageHandler implements MessageHandler {
             response.putPayload("status", "ACCEPTED");
             return response;
         } catch (IllegalArgumentException e) {
-            String code = (e.getMessage() != null && e.getMessage().contains("out of bounds"))
-                    ? "INVALID_OPTION"
-                    : "INVALID_PAYLOAD";
+            String code;
+            if (e.getMessage() != null && e.getMessage().contains("out of bounds")) {
+                code = "INVALID_OPTION";
+            } else if (e.getMessage() != null && e.getMessage().contains("does not exist")) {
+                code = "INVALID_POLL";
+            } else {
+                code = "INVALID_PAYLOAD";
+            }
             return Message.error(requestId, code, e.getMessage());
         } catch (IllegalStateException e) {
             return Message.error(requestId, "DUPLICATE_ANSWER", e.getMessage());
