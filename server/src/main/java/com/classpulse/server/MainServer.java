@@ -3,7 +3,6 @@ package com.classpulse.server;
 import com.classpulse.common.protocol.Message;
 import com.classpulse.server.classroom.ClassroomManager;
 import com.classpulse.server.classroom.ClassroomMessageHandler;
-import com.classpulse.server.concurrency.WorkerPool;
 import com.classpulse.server.nio.MessageHandler;
 import com.classpulse.server.nio.NioServer;
 import com.classpulse.server.poll.AnswerService;
@@ -44,8 +43,7 @@ public class MainServer {
             }
         };
 
-        WorkerPool workerPool = new WorkerPool();
-        NioServer server = new NioServer(port, compositeHandler, workerPool);
+        NioServer server = new NioServer(port, compositeHandler);
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             System.out.println("Shutting down ClassPulse NIO Server...");
             server.stop();

@@ -3,6 +3,7 @@ package com.classpulse.server.poll;
 import com.classpulse.common.model.Answer;
 import com.classpulse.common.model.Poll;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -11,16 +12,16 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Thread-safe in-memory student answer management service.
+ * In-memory student answer management service.
  * <p>
- * Validates answer submissions against active polls, delegates per-poll concurrency
- * coordination to {@link PollResponseState}, enforces single-submission rules per
- * student, and produces consistent aggregated {@link PollResult} snapshots.
+ * Validates answer submissions against active polls, enforces single-submission
+ * rules per student, and calculates aggregated poll results with vote percentages.
  */
 public class AnswerService {
 
     private final PollService pollService;
-    private final Map<String, PollResponseState> pollStates = new ConcurrentHashMap<>();
+    // Map: pollId -> Map<studentId, Answer>
+    private final Map<String, Map<String, Answer>> answersByPoll = new ConcurrentHashMap<>();
 
     public AnswerService(PollService pollService) {
         this.pollService = Objects.requireNonNull(pollService, "pollService cannot be null");
@@ -50,8 +51,21 @@ public class AnswerService {
         Poll poll = pollService.findPoll(normalizedPollId)
                 .orElseThrow(() -> new IllegalArgumentException("Poll '" + normalizedPollId + "' does not exist"));
 
-        PollResponseState state = pollStates.computeIfAbsent(normalizedPollId, k -> new PollResponseState(poll));
-        return state.recordAnswer(normalizedStudentId, selectedOptionIndex);
+        if (selectedOptionIndex < 0 || selectedOptionIndex >= poll.getOptions().size()) {
+            throw new IllegalArgumentException("Selected option index " + selectedOptionIndex +
+                    " is out of bounds (allowed: 0.." + (poll.getOptions().size() - 1) + ")");
+        }
+
+        Map<String, Answer> pollAnswers = answersByPoll.computeIfAbsent(normalizedPollId, k -> new ConcurrentHashMap<>());
+
+        Answer answer = new Answer(normalizedPollId, normalizedStudentId, selectedOptionIndex);
+        Answer previous = pollAnswers.putIfAbsent(normalizedStudentId, answer);
+        if (previous != null) {
+            throw new IllegalStateException("Student '" + normalizedStudentId +
+                    "' has already submitted an answer to poll '" + normalizedPollId + "'");
+        }
+
+        return answer;
     }
 
     /**
@@ -61,23 +75,26 @@ public class AnswerService {
         if (pollId == null || studentId == null) {
             return false;
         }
-        PollResponseState state = pollStates.get(pollId.trim());
-        return state != null && state.hasStudentAnswered(studentId.trim());
+        Map<String, Answer> answers = answersByPoll.get(pollId.trim());
+        return answers != null && answers.containsKey(studentId.trim());
     }
 
     /**
-     * Retrieves a snapshot of all submitted answers for a given poll.
+     * Retrieves all submitted answers for a given poll.
      */
     public List<Answer> getAnswersForPoll(String pollId) {
         if (pollId == null) {
             return Collections.emptyList();
         }
-        PollResponseState state = pollStates.get(pollId.trim());
-        return (state != null) ? state.getAnswers() : Collections.emptyList();
+        Map<String, Answer> answers = answersByPoll.get(pollId.trim());
+        if (answers == null) {
+            return Collections.emptyList();
+        }
+        return new ArrayList<>(answers.values());
     }
 
     /**
-     * Calculates a consistent aggregated result snapshot for a poll.
+     * Calculates the aggregated result for a poll.
      *
      * @param pollId target poll ID
      * @return calculated {@link PollResult}
@@ -92,24 +109,38 @@ public class AnswerService {
         Poll poll = pollService.findPoll(normalizedPollId)
                 .orElseThrow(() -> new IllegalArgumentException("Poll '" + normalizedPollId + "' does not exist"));
 
-        PollResponseState state = pollStates.get(normalizedPollId);
-        if (state != null) {
-            return state.snapshotResult();
-        }
+        Map<String, Answer> answers = answersByPoll.get(normalizedPollId);
+        int totalResponses = (answers != null) ? answers.size() : 0;
 
         Map<Integer, Integer> counts = new LinkedHashMap<>();
-        Map<Integer, Double> percentages = new LinkedHashMap<>();
         for (int i = 0; i < poll.getOptions().size(); i++) {
             counts.put(i, 0);
-            percentages.put(i, 0.0);
         }
-        return new PollResult(poll.getId(), poll.getQuestion(), poll.getOptions(), 0, counts, percentages);
+
+        if (answers != null) {
+            for (Answer a : answers.values()) {
+                int option = a.getSelectedOptionIndex();
+                counts.put(option, counts.getOrDefault(option, 0) + 1);
+            }
+        }
+
+        Map<Integer, Double> percentages = new LinkedHashMap<>();
+        for (int i = 0; i < poll.getOptions().size(); i++) {
+            int voteCount = counts.get(i);
+            double percentage = (totalResponses > 0)
+                    ? Math.round((voteCount * 100.0 / totalResponses) * 10.0) / 10.0
+                    : 0.0;
+            percentages.put(i, percentage);
+        }
+
+        return new PollResult(poll.getId(), poll.getQuestion(), poll.getOptions(),
+                totalResponses, counts, percentages);
     }
 
     /**
      * Clears all recorded answers.
      */
     public void clear() {
-        pollStates.clear();
+        answersByPoll.clear();
     }
 }

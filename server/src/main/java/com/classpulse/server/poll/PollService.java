@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * In-memory poll management service.
@@ -72,7 +71,7 @@ public class PollService {
         Poll poll = new Poll(pollId, normalizedCode, question.trim(), cleanedOptions);
 
         pollsById.put(pollId, poll);
-        pollIdsByClassroom.computeIfAbsent(normalizedCode, k -> new CopyOnWriteArrayList<>())
+        pollIdsByClassroom.computeIfAbsent(normalizedCode, k -> Collections.synchronizedList(new ArrayList<>()))
                 .add(pollId);
 
         return poll;
@@ -112,10 +111,12 @@ public class PollService {
         }
 
         List<Poll> result = new ArrayList<>();
-        for (String id : ids) {
-            Poll p = pollsById.get(id);
-            if (p != null) {
-                result.add(p);
+        synchronized (ids) {
+            for (String id : ids) {
+                Poll p = pollsById.get(id);
+                if (p != null) {
+                    result.add(p);
+                }
             }
         }
         return result;

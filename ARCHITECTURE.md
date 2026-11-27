@@ -74,9 +74,9 @@ Contains the client entry point and user-side workflows:
 
 ## 4. NIO and concurrency boundary
 
-The NIO selector thread performs non-blocking channel I/O (`OP_ACCEPT`, `OP_READ`, `OP_WRITE`) and frame decoding (`FrameDecoder`), then dispatches decoded `Message` tasks to a bounded `ExecutorService` worker pool (`com.classpulse.server.concurrency.WorkerPool`). Worker threads encode responses via `ClientConnection.send(Message)` and schedule write interest back onto the selector thread via a concurrent queue (`pendingWriteRegistrations`) + `selector.wakeup()`, ensuring socket writes and `SelectionKey` mutations occur only on the selector thread.
+The NIO selector thread should perform non-blocking channel I/O and lightweight dispatch. Potentially blocking or longer-running work should be delegated to worker threads if the team adopts that design. Define how worker results are returned to the selector thread before implementing it.
 
-Shared classroom and poll state is protected against concurrent updates: `ClassroomManager` uses `ConcurrentHashMap` with per-classroom synchronization, `PollService` uses `ConcurrentHashMap` and `CopyOnWriteArrayList`, and `AnswerService` / `PollResponseState` combine `ConcurrentHashMap`, `AtomicInteger` / `AtomicIntegerArray`, and per-poll `ReentrantReadWriteLock` so concurrent submissions remain accurate and result snapshots stay consistent.
+Shared classroom and poll state must be protected against concurrent updates. Choose simple thread-safe structures or synchronisation appropriate to the implementation.
 
 ## 5. TCP framing
 
