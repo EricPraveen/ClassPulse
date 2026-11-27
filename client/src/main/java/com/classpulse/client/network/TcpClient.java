@@ -144,7 +144,8 @@ public class TcpClient implements AutoCloseable {
             } catch (IOException e) {
                 disconnect();
                 String err = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
-                if (err.contains("reset") || err.contains("Broken pipe") || err.contains("closed")) {
+                String lower = err.toLowerCase();
+                if (lower.contains("reset") || lower.contains("broken pipe") || lower.contains("closed") || lower.contains("abort")) {
                     throw new ClientTransportException("Server disconnected unexpectedly during send: " + err, e);
                 }
                 throw new ClientTransportException("Failed to send message (" + message.getType() + "): " + err, e);
@@ -181,7 +182,8 @@ public class TcpClient implements AutoCloseable {
             } catch (IOException e) {
                 disconnect();
                 String err = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
-                if (err.contains("reset") || err.contains("Broken pipe") || err.contains("closed")) {
+                String lower = err.toLowerCase();
+                if (lower.contains("reset") || lower.contains("broken pipe") || lower.contains("closed") || lower.contains("abort")) {
                     throw new ClientTransportException("Server disconnected unexpectedly while awaiting response: " + err, e);
                 }
                 throw new ClientTransportException("I/O error while reading response: " + err, e);

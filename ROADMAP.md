@@ -27,7 +27,7 @@ This roadmap is intentionally small and aligned with the five-member assignment 
 - [ ] Add UDP heartbeat/status messages.
 - [ ] Add multicast announcements.
 - [x] Add concurrent request processing and safe shared-state updates.
-- [ ] Add JSSE/TLS connection support.
+- [x] Add JSSE/TLS connection support.
 
 **Milestone:** each assigned networking concept has a reproducible demonstration.
 

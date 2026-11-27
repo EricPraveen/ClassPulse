@@ -8,7 +8,7 @@ The following is a proposed allocation for a five-member group. Replace placehol
 | Member 2 | TCP classroom and polling | Classroom creation/joining, poll creation, answer submission and results over the agreed protocol |
 | Member 3 | UDP and multicast | UDP heartbeat/status and multicast announcements |
 | Member 4 | Multithreading and concurrency | Worker execution, concurrent client processing, safe shared poll state |
-| Member 5 | JSSE/TLS security | TLS configuration, certificate/trust setup and verified handshake |
+| Member 5 (Nuwanthi) | JSSE/TLS security | TLS configuration, certificate/trust setup and verified handshake |
 
 ## Coordination requirements
 
